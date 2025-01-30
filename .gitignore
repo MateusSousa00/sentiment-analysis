@@ -1,0 +1,41 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+.pytest_cache/
+
+# Virtual environment
+venv/
+
+# Dependency lock files
+Pipfile
+Pipfile.lock
+poetry.lock
+
+# IDE
+.vscode/
+.idea/
+.history
+
+# Hugging Face cache
+~/.cache/huggingface/
+~/.cache/torch/
+
+# Jupyter Notebook checkpoints
+notebooks/.ipynb_checkpoints/
+
+# Model files
+models/*.pt
+models/*.bin
+models/*.h5
+models/*.pkl
+models/checkpoints/
+
+# Dataset files
+data/raw/
+data/processed/
+
+# Docker
+*.dockerignore
