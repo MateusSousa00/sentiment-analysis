@@ -1,15 +1,19 @@
 # Sentiment Analysis AI
 
-This is a **Sentiment Analysis model** using Hugging Face's `transformers` and `Pytorch`.
+
+This is a **Sentiment Analysis Model** using both:
+- **Baseline Model** (TF-IDF + Logistic Regression)
+- **Fine-Tuned Transformer** (DistilBERT)
+
 It classifies text as **POSITIVE** or **NEGATIVE**.
 
-
 ## Features
-- Pretrained model: `distilbert-base-uncased-finetuned-sst-2-english`
+- **Two Models**: Classical ML (`baseline`) & Deep Learning (`transformer`)
 - Supports **GPU acceleration (CUDA)**
-- Runs on a **FastAPI API**
-- Includes **unit tests with `pytest`**
-- Saves and loads trained models for inference
+- Runs on a **FastAPI API** (coming soon)
+- **High Test Coverage (85%+) with `pytest`**
+- **Dockerized for Production**  
+- **CI/CD Planned with Kubernetes & Vercel**
 
 ## Instalation
 
@@ -33,57 +37,29 @@ pip install -r requirements.txt
 
 ### Train the Baseline Model (Logistic Regression + TF-IDF)
 ```
-python src/train_baseline_model.py
+python src/training/train_baseline_model.py
 ```
-- Model will be saved in `models/sentiment_model.pkl`
-- TF-IDF vectorizer saved in `models/tfidf_vectorizer.pkl`
+- Model will be saved in `models/baseline_model/baseline_model.pkl`
+- TF-IDF vectorizer saved in `models/baseline_model/tfidf_vectorizer.pkl`
 
 ### Train the Transformer Model (DistilBERT)
 ```
-python src/train_transformer_model.py
+python src/training/train_transformer.py
 ```
-- Model will be saved in `models/transformer_model.pkl`
-- Tokenizer saved in `models/transformer_tokenizer.pkl`
+- Model will be saved in `models/transformer_model/transformer_model.pkl`
+- Tokenizer saved in `models/transformer_model/transformer_tokenizer.pkl`
 
-## Running Predictions
+### Train the Fine-Tuned Transformer Model (DistilBERT)
+```
+python src/training/train_transformer.py
+```
+- Model will be saved in `models/transformer_finetuned`
 
-### Predict using the **Baseline Model**
+### Evaluate Models
 ```
-python src/predict.py
-```
-**Example:**
-```
-from src.predict import predict_sentiment
-print(predict_sentiment("I love AI!", model_type="baseline"))
-# Expected output: Positive
-```
-
-### Predict using the **Transformer Model**
-```
-python src/predict.py
-```
-**Example:**
-```
-from src.predict import predict_sentiment
-print(predict_sentiment("I love AI!", model_type="transformer"))
-#Expected output: Sentiment: POSITIVE (Confidence: 99.94%)
-```
-
-## Running FastAPI Server
-
-1. Start the API server
-```
-uvicorn api.main:app --reload
-```
-
-2. Open your browser and test:
-```
-http://127.0.0.1:8000/predict/?text=I%20love%20this!&model_type=transformer
-```
-
-Or test via **cURL**:
-```
-curl "http://127.0.0.1:8000/predict/?text=I%20love%20this!&model_type=transformer"
+python src/evaluation/evaluate_baseline.py
+python src/evaluation/evaluate_transformer.py
+python src/evaluation/compare_models.py
 ```
 
 ## Running Tests
@@ -92,13 +68,23 @@ To verify everything works:
 pytest tests/
 ```
 
-## Upcoming Features
-- Fine-tuned model on custom data
-- Web interface for sentiment analysis
+Check coverage:
+```
+pytest --cov-report term-missing --cov=src tests/
+```
+
+To check the HTML file:
+```
+pytest --cov=src --cov-report=html tests
+```
+
+## API Deployment (Coming Soon)
+- I'll **containerize the API with Docker**
+- Deploy to Vercel and Kubernetes
+- Implement CI/CD pipeline with automated tests
 
 ## Contributing
 Feel free to open a PR!
-
 
 ## License
 MIT License - **Feel free to use and modify!**
