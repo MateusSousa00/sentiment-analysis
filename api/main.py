@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException
-from src.predict import predict_sentiment
+from src.inference.predict import predict_sentiment
 
 app = FastAPI()
 

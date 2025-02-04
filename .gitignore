@@ -22,16 +22,22 @@ poetry.lock
 # Hugging Face cache
 ~/.cache/huggingface/
 ~/.cache/torch/
+~/.huggingface/
+.coverage
 
 # Jupyter Notebook checkpoints
 notebooks/.ipynb_checkpoints/
 
 # Model files
+models/**/*.pkl
+models/**/*.safetensors
+models/**/*.bin
 models/*.pt
 models/*.bin
 models/*.h5
 models/*.pkl
-models/checkpoints/
+models/**/checkpoint*/
+models/**/vocab.txt
 
 # Dataset files
 data/raw/
@@ -39,3 +45,7 @@ data/processed/
 
 # Docker
 *.dockerignore
+
+# Ignore system files
+.DS_Store
+__pycache__/

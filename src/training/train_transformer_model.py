@@ -1,4 +1,4 @@
-from transformers import pipeline, AutoModelForSequenceClassification, AutoTokenizer
+from transformers import AutoModelForSequenceClassification, AutoTokenizer
 import torch
 import joblib
 
@@ -8,8 +8,8 @@ def train_transformer_model():
     model = AutoModelForSequenceClassification.from_pretrained(model_name)
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     
-    joblib.dump(model, 'models/transformer_model.pkl')
-    joblib.dump(tokenizer, 'models/transformer_tokenizer.pkl')
+    joblib.dump(model, 'models/transformer_model/transformer_model.pkl')
+    joblib.dump(tokenizer, 'models/transformer_model/transformer_tokenizer.pkl')
     print("Transformer model trained and saved successfully!")
     
 if __name__ == "__main__":

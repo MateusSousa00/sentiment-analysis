@@ -27,3 +27,6 @@ def test_model_performance():
     sentiment_model("AI is cool!")
     end_time = time.time()
     assert end_time - start_time < 1
+
+if __name__ == "__main__":
+    pytest.main()

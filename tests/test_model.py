@@ -1,13 +1,13 @@
 import pytest
-from src.predict import predict_sentiment
+from src.inference.predict import predict_sentiment
 
 def test_baseline_prediction():
     result = predict_sentiment("I love AI!", model_type="baseline")
-    assert result in ["Positive", "Negative"]
+    assert result["sentiment"] == "Positive"
     
 def test_transformer_prediction():
     result = predict_sentiment("I hate bugs.", model_type="transformer")
-    assert isinstance(result, str)
+    assert result["sentiment"] == "NEGATIVE"
     
 def test_empty_input():
     with pytest.raises(ValueError):
@@ -19,7 +19,8 @@ def test_invalid_input():
         
 def test_unexpected_output():
     result = predict_sentiment("I love AI!", model_type="baseline")
-    assert result in ["Positive", "Negative"], f"Unexpected output: {result}"
+    assert isinstance(result, dict), f"Unexpected output type: {type(result)}"
+    assert result["sentiment"] in ["Positive", "Negative"], f"Unexpected sentiment value: {result['sentiment']}"
     
 if __name__ == "__main__":
     pytest.main()

@@ -1,13 +1,18 @@
+import pandas as pd
 import kagglehub
 import os
-import pandas as pd
 
 def download_dataset():
-    path = kagglehub.dataset_download("lakshmi25npathi/imdb-dataset-of-50k-movie-reviews")
-    csv_file = [f for f in os.listdir(path) if f.endswith('.csv')][0]
-    return os.path.join(path, csv_file)
+    dataset_path = "data/raw/imdb_dataset.csv"
 
-if __name__ == "__main__":
-    dataset_path = download_dataset()
-    df = pd.read_csv(dataset_path)
-    df.to_csv("data/raw/imdb_dataset.csv", index=False)
+    if os.path.exists(dataset_path):
+        print(f"Dataset found at {dataset_path}. Loading...")
+        return pd.read_csv(dataset_path)
+
+    print(" Dataset not found. Downloading from Kaggle...")
+    downloaded_path = kagglehub.dataset_download("lakshmi25npathi/imdb-dataset-of-50k-movie-reviews")
+
+    os.rename(downloaded_path, dataset_path)
+
+    print(f"Dataset saved at {dataset_path}. Loading...")
+    return pd.read_csv(dataset_path)
