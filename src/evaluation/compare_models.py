@@ -1,8 +1,8 @@
 import joblib
 import pandas as pd
 
-baseline_results = joblib.load("models/baseline_model/evaluation_results.pkl")
-fine_tuned_results = joblib.load("models/transformer_finetuned/evaluation_results.pkl")
+baseline_results = joblib.load("src/models/baseline_model/evaluation_results.pkl")
+fine_tuned_results = joblib.load("src/models/transformer_finetuned/evaluation_results.pkl")
 
 df = pd.DataFrame({
     "Metric": ["Accuracy","Precision","Recall","F1-score"],
@@ -23,6 +23,6 @@ df = pd.DataFrame({
 print("\n Model Performance Comparison: \n")
 print(df.to_string(index=False))
 
-df.to_csv("models/comparison_results.csv", index=False)
+df.to_csv("src/models/comparison_results.csv", index=False)
 
-print("\n Comparison results saved to `models/comparison_results.csv`!")
+print("\n Comparison results saved to `src/models/comparison_results.csv`!")
