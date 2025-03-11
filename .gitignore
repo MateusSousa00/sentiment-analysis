@@ -41,8 +41,7 @@ src/models/**/checkpoint*/
 src/models/**/vocab.txt
 
 # Dataset files
-data/raw/
-data/processed/
+src/data/*
 
 # Docker
 *.dockerignore
