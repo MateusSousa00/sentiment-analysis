@@ -28,16 +28,17 @@ poetry.lock
 # Jupyter Notebook checkpoints
 notebooks/.ipynb_checkpoints/
 
+
 # Model files
-models/**/*.pkl
-models/**/*.safetensors
-models/**/*.bin
-models/*.pt
-models/*.bin
-models/*.h5
-models/*.pkl
-models/**/checkpoint*/
-models/**/vocab.txt
+src/models/**/*.pkl
+src/models/**/*.safetensors
+src/models/**/*.bin
+src/models/*.pt
+src/models/*.bin
+src/models/*.h5
+src/models/*.pkl
+src/models/**/checkpoint*/
+src/models/**/vocab.txt
 
 # Dataset files
 data/raw/
