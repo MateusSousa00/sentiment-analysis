@@ -39,6 +39,10 @@ src/models/*.h5
 src/models/*.pkl
 src/models/**/checkpoint*/
 src/models/**/vocab.txt
+*.pkl
+*.arrow
+*.pt
+*.safetensors
 
 # Dataset files
 src/data/*
