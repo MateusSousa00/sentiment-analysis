@@ -10,21 +10,33 @@ transformer_model = pipeline("sentiment-analysis", model="src/models/transformer
 
 def classify_baseline(text):
     """Predict sentiment using the baseline model."""
-    text_tfidf = vectorizer.transform([text])
-    prediction = baseline_model.predict(text_tfidf)[0]
-    confidence = max(baseline_model.predict_proba(text_tfidf)[0])
+    transformed_text = vectorizer.transform([text])
+    probs = baseline_model.predict_proba(transformed_text)[0]
+    prediction = probs.argmax()  
+    confidence = probs[prediction] 
+    
+    LABEL_MAPPING = {0: "Negative", 1: "Positive", 2: "Neutral"}
 
-    if is_neutral_with_textblob(text) or is_neutral_with_vader(text):
+    if confidence < 0.45:
         return {"sentiment": "Neutral", "confidence": confidence}
 
-    return {"sentiment": "Positive" if prediction == 1 else "Negative", "confidence": confidence}
+    sentiment = LABEL_MAPPING.get(prediction, "Unknown")
+    return {"sentiment": sentiment, "confidence": confidence}
 
 def classify_transformer(text):
     """Predict sentiment using the transformer model."""
+    
     result = transformer_model(text)[0]
     confidence = round(result["score"], 4)
 
-    if is_neutral_with_textblob(text) or is_neutral_with_vader(text):
-        return {"sentiment": "Neutral", "confidence": confidence}
+    label_mapping = {"LABEL_0": "Negative", "LABEL_1": "Neutral", "LABEL_2": "Positive"}
+    sentiment = label_mapping.get(result["label"], "Unknown")
 
-    return {"sentiment": "Positive" if result["label"] == "LABEL_1" else "Negative", "confidence": confidence}
+    if confidence < 0.5:
+        return {"sentiment": "Neutral", "confidence": confidence}
+    
+    if "hate" in text.lower() and sentiment in ["Positive", "Neutral"] and confidence > 0.90:
+        sentiment = "Negative"
+
+    return {"sentiment": sentiment, "confidence": confidence}
+

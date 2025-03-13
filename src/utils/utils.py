@@ -16,7 +16,7 @@ def is_textual_input(text):
 
 def is_question(text):
     """Detects if the sentence is a question more effectively."""
-    return bool(re.search(r"\?$|\b(who|what|when|where|why|how|do|does|is|are|can|could|should|would|will)\b", text.lower()))
+    return text.strip().endswith("?") or bool(re.match(r"^(who|what|when|where|why|how|do|does|is|are|can|could|should|would|will)\b", text.lower()))
 
 def is_neutral_statement(text):
     """Detects if a phrase is neutral based on common patterns."""

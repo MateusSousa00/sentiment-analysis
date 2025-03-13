@@ -3,7 +3,7 @@ import kagglehub
 import os
 
 def download_dataset():
-    dataset_path = "data/raw/imdb_dataset.csv"
+    dataset_path = "src/data/raw/imdb_dataset.csv"
 
     if os.path.exists(dataset_path):
         print(f"Dataset found at {dataset_path}. Loading...")
