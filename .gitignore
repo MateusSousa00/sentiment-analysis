@@ -47,9 +47,11 @@ src/models/**/vocab.txt
 # Dataset files
 src/data/*
 
-# Docker
-*.dockerignore
 
 # Ignore system files
 .DS_Store
 __pycache__/
+
+# Environment files
+.env
+.env.production
