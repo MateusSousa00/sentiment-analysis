@@ -1,11 +1,29 @@
+import os
 import joblib
-from transformers import pipeline
-from src.utils.utils import is_textual_input, is_question, is_neutral_statement
+from transformers import pipeline, AutoModelForSequenceClassification, AutoTokenizer
 
 baseline_model = joblib.load("src/models/baseline_model/baseline_model.pkl")
 vectorizer = joblib.load("src/models/baseline_model/tfidf_vectorizer.pkl")
+
 MODEL_PATH = "src/models/transformer_finetuned"
 HUGGINGFACE_MODEL = "Mateussousa00/sentiment-analysis-model"
+
+def load_transformer_model():
+    """Loads the transformer model, either locally or from Hugging Face."""
+    if os.path.exists(MODEL_PATH) and os.path.isfile(f"{MODEL_PATH}/config.json"):
+        print("Found locally trained transformer model.")
+        return pipeline("sentiment-analysis", model=MODEL_PATH)
+    
+    print("Local model not found. Downloading from Hugging Face...")
+    tokenizer = AutoTokenizer.from_pretrained(HUGGINGFACE_MODEL)
+    model = AutoModelForSequenceClassification.from_pretrained(HUGGINGFACE_MODEL)
+
+    os.makedirs(MODEL_PATH, exist_ok=True)
+    model.save_pretrained(MODEL_PATH)
+    tokenizer.save_pretrained(MODEL_PATH)
+
+    print(f"Model downloaded and saved to {MODEL_PATH}.")
+    return pipeline("sentiment-analysis", model=model, tokenizer=tokenizer)
 
 def predict_sentiment(text: str, model_type: str = "baseline"):
     """Predict sentiment using either the baseline or transformer model."""
@@ -22,7 +40,7 @@ def predict_sentiment(text: str, model_type: str = "baseline"):
         label_mapping = {"LABEL_0": "Negative", "LABEL_1": "Positive", "LABEL_2": "Neutral"}
         
         try:
-            transformer_model = pipeline("sentiment-analysis", model=MODEL_PATH)
+            transformer_model = load_transformer_model()
         except:
             print("⚠️ Model not found locally. Downloading from Hugging Face...")
             transformer_model = pipeline("sentiment-analysis", model=HUGGINGFACE_MODEL)
