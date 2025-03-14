@@ -23,10 +23,20 @@ jobs:
           pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Download Dataset (If Missing)
+      - name: Download Dataset (No Credentials Required)
         run: |
           mkdir -p src/data/raw
-          python src/data_loader.py || { echo "❌ Dataset download failed. Stopping build."; exit 1; }
+          if [ ! -f "src/data/raw/imdb_dataset.csv" ]; then
+            echo "⚡ Dataset not found, attempting to download..."
+            python src/data_loader.py || echo "❌ Dataset download failed. Retrying..."
+            sleep 5
+            python src/data_loader.py || echo "❌ Dataset download failed again. Stopping build."
+          fi
+          
+          if [ ! -f "src/data/raw/imdb_dataset.csv" ]; then
+            echo "❌ Dataset download failed after 2 attempts. Stopping build."
+            exit 1
+          fi
 
       - name: Check & Train Baseline Model if Missing
         run: |
