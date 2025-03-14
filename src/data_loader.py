@@ -6,17 +6,17 @@ def download_dataset():
     dataset_path = "src/data/raw/imdb_dataset.csv"
 
     if os.path.exists(dataset_path):
-        print(f"✅ Dataset found at {dataset_path}. Loading...")
+        print(f"Dataset found at {dataset_path}. Loading...")
         return pd.read_csv(dataset_path)
 
-    print("⚠️ Dataset not found. Attempting to download from KaggleHub...")
+    print("Dataset not found. Attempting to download from KaggleHub...")
 
     try:
         downloaded_path = kagglehub.dataset_download("lakshmi25npathi/imdb-dataset-of-50k-movie-reviews")
         os.rename(downloaded_path, dataset_path)
-        print(f"✅ Dataset saved at {dataset_path}.")
+        print(f"Dataset saved at {dataset_path}.")
         return pd.read_csv(dataset_path)
 
     except Exception as e:
-        print(f"❌ Dataset download failed: {e}")
-        return None  # Do not break the pipeline, allow retrying
+        print(f"Dataset download failed: {e}")
+        return None
