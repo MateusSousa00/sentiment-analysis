@@ -23,17 +23,27 @@ jobs:
           pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Download Dataset (If Missing)
+        run: |
+          mkdir -p src/data/raw
+          python src/data_loader.py || { echo "❌ Dataset download failed. Stopping build."; exit 1; }
+
       - name: Check & Train Baseline Model if Missing
         run: |
+          mkdir -p src/data/processed/imdb_hf
+          if [ ! -f "src/data/raw/imdb_dataset.csv" ]; then
+            echo "❌ Dataset is missing. Cannot train model."
+            exit 1
+          fi
           [ -f "src/models/baseline_model/baseline_model.pkl" ] || python src/training/train_baseline_model.py
-  
+
       - name: Run Tests and Check Coverage
         run: |
           pytest --cov=src tests/ --cov-report=term-missing | tee coverage.txt
           coverage_percent=$(grep -Po '\bTOTAL.*\b\K\d+(?=%)' coverage.txt)
-          echo "Coverage: $coverage_percent%"
+          echo "📊 Coverage: $coverage_percent%"
           if [ "$coverage_percent" -lt 85 ]; then
-            echo "Test coverage is below 85%, deployment stopped."
+            echo "❌ Test coverage is below 85%, deployment stopped."
             exit 1
           fi
 
