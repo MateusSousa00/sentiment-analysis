@@ -4,8 +4,8 @@ from src.utils.utils import is_textual_input, is_question, is_neutral_statement
 
 baseline_model = joblib.load("src/models/baseline_model/baseline_model.pkl")
 vectorizer = joblib.load("src/models/baseline_model/tfidf_vectorizer.pkl")
-
-transformer_model = pipeline("sentiment-analysis", model="src/models/transformer_finetuned")
+MODEL_PATH = "src/models/transformer_finetuned"
+HUGGINGFACE_MODEL = "Mateussousa00/sentiment-analysis-model"
 
 def predict_sentiment(text: str, model_type: str = "baseline"):
     """Predict sentiment using either the baseline or transformer model."""
@@ -20,6 +20,12 @@ def predict_sentiment(text: str, model_type: str = "baseline"):
 
     if model_type == "transformer":
         label_mapping = {"LABEL_0": "Negative", "LABEL_1": "Positive", "LABEL_2": "Neutral"}
+        
+        try:
+            transformer_model = pipeline("sentiment-analysis", model=MODEL_PATH)
+        except:
+            print("⚠️ Model not found locally. Downloading from Hugging Face...")
+            transformer_model = pipeline("sentiment-analysis", model=HUGGINGFACE_MODEL)
 
         result = transformer_model(text)[0]
         sentiment = label_mapping.get(result["label"], "Unknown")
