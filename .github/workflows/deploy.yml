@@ -23,6 +23,12 @@ jobs:
           pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Authenticate with Hugging Face
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          huggingface-cli login --token "$HF_TOKEN"
+
       - name: Run Full Pipeline (Dataset, Preprocessing, Training)
         run: |
           python run_pipeline.py || { echo "Pipeline failed. Stopping build."; exit 1; }
@@ -52,7 +58,7 @@ jobs:
       
       - name: Build and push Docker images
         run: |
-          IMAGE_NAME="my-api"
+          IMAGE_NAME="sentiment-analysis-api"
           BRANCH_NAME=$(echo "${{ github.ref_name }}" | sed 's/\//-/g')  # Make sure branch names are safe for tags
           COMMIT_SHA=$(git rev-parse --short HEAD)
       
