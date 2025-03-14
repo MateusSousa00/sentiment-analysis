@@ -23,6 +23,17 @@ jobs:
           pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Set Environment Variables
+        run: |
+          echo "ENVIRONMENT=${{ secrets.ENVIRONMENT }}" >> $GITHUB_ENV
+          echo "HOST=${{ secrets.HOST }}" >> $GITHUB_ENV
+          echo "PORT=${{ secrets.PORT }}" >> $GITHUB_ENV
+          echo "LOG_LEVEL=${{ secrets.LOG_LEVEL }}" >> $GITHUB_ENV
+          echo "MODEL_PATH=${{ secrets.MODEL_PATH }}" >> $GITHUB_ENV
+          echo "HUGGINGFACE_MODEL=${{ secrets.HUGGINGFACE_MODEL }}" >> $GITHUB_ENV
+          echo "BASELINE_MODEL_PATH=${{ secrets.BASELINE_MODEL_PATH }}" >> $GITHUB_ENV
+          echo "VECTORIZER_PATH=${{ secrets.VECTORIZER_PATH }}" >> $GITHUB_ENV
+
       - name: Authenticate with Hugging Face
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
@@ -99,5 +110,13 @@ jobs:
         run: npm install -g vercel
 
       - name: Deploy to Vercel
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         run: |
-          vercel --token ${{ secrets.VERCEL_TOKEN }} --yes --prod
+          vercel --prod --yes --token $VERCEL_TOKEN
+  
+      - name: Start FastAPI Server on Vercel
+        run: |
+          vercel env pull .env
+          echo "Starting FastAPI on Vercel..."
+          uvicorn src.api.main:app --host ${{ secrets.HOST }} --port ${{ secrets.PORT }} --log-level ${{ secrets.LOG_LEVEL }}
