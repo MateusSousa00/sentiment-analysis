@@ -1,19 +1,17 @@
 # Sentiment Analysis AI
 
-
-This is a **Sentiment Analysis Model** using both:
+A **high-performance Sentiment Analysis Model** that classifies text as **POSITIVE** or **NEGATIVE**, powered by:
 - **Baseline Model** (TF-IDF + Logistic Regression)
 - **Fine-Tuned Transformer** (DistilBERT)
 
-It classifies text as **POSITIVE** or **NEGATIVE**.
-
 ## Features
-- **Two Models**: Classical ML (`baseline`) & Deep Learning (`transformer`)
-- Supports **GPU acceleration (CUDA)**
-- Runs on a **FastAPI API** (coming soon)
-- **High Test Coverage (85%+) with `pytest`**
-- **Dockerized for Production**  
-- **CI/CD Planned with Kubernetes & Vercel**
+
+- **Dual Model Support**: Choose between classical ML (`baseline`) & deep learning (`transformer`)
+- **Fine-Tuned Transformer Model** (DistilBERT) hosted on Hugging Face
+- **FastAPI API** (Dockerized & CI/CD Automated)
+- **GPU Acceleration** (CUDA Support) for Transformer Inference
+- **High Test Coverage** (91%+) with `pytest`
+- **CI/CD with Docker & Vercel Deployment**
 
 ## Instalation
 
@@ -39,21 +37,13 @@ pip install -r requirements.txt
 ```
 python src/training/train_baseline_model.py
 ```
-- Model will be saved in `models/baseline_model/baseline_model.pkl`
-- TF-IDF vectorizer saved in `models/baseline_model/tfidf_vectorizer.pkl`
-
-### Train the Transformer Model (DistilBERT)
-```
-python src/training/train_transformer.py
-```
-- Model will be saved in `models/transformer_model/transformer_model.pkl`
-- Tokenizer saved in `models/transformer_model/transformer_tokenizer.pkl`
+- Outputs saved to `src/models/baseline_model/`
 
 ### Train the Fine-Tuned Transformer Model (DistilBERT)
 ```
 python src/training/train_transformer.py
 ```
-- Model will be saved in `models/transformer_finetuned`
+- Outputs saved to `src/models/transformer_finetuned/`
 
 ### Evaluate Models
 ```
@@ -63,25 +53,36 @@ python src/evaluation/compare_models.py
 ```
 
 ## Running Tests
-To verify everything works:
+Run unit tests:
 ```
 pytest tests/
 ```
 
-Check coverage:
+Check test coverage:
 ```
-pytest --cov-report term-missing --cov=src tests/
+pytest --cov=src --cov-report=term-missing tests/
 ```
 
-To check the HTML file:
+Generate HTML coverage report:
 ```
 pytest --cov=src --cov-report=html tests
 ```
 
-## API Deployment (Coming Soon)
-- I'll **containerize the API with Docker**
-- Deploy to Vercel and Kubernetes
-- Implement CI/CD pipeline with automated tests
+## API Deployment
+
+### Run Locally with Docker
+
+```
+docker build -t sentiment-analysis-api .
+docker run -p 8000:8000 sentiment-analysis-api
+```
+
+### Deploying with CI/CD
+
+- Docker Image Build & Push
+- Auto-Deploy on Vercel
+- CI/CD Automated with GitHub Actions
+
 
 ## Contributing
 Feel free to open a PR!

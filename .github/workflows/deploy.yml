@@ -32,13 +32,15 @@ jobs:
       - name: Download Transformer Model from Hugging Face
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          MODEL_PATH: "src/models/transformer_finetuned"
+          HUGGINGFACE_MODEL: ${{ secrets.HUGGINGFACE_MODEL }}
         run: |
-          rm -rf src/models/transformer_finetuned  # Force fresh download
+          rm -rf src/models/transformer_finetuned
           echo "Model not found locally. Downloading from Hugging Face..."
-          mkdir -p src/models/transformer_finetuned
+          mkdir -p $MODEL_PATH
           huggingface-cli login --token $HF_TOKEN
-          huggingface-cli download Mateussousa00/sentiment-analysis-model --local-dir src/models/transformer_finetuned
-          ls -lh src/models/transformer_finetuned  # Debugging check
+          huggingface-cli download $HUGGINGFACE_MODEL --local-dir $MODEL_PATH
+          ls -lh $MODEL_PATH
 
       - name: Run Full Pipeline (Dataset, Preprocessing, Training)
         run: |

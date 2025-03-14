@@ -9,12 +9,12 @@ from src.api.endpoints import router
 
 # Load environment variables
 env_file = ".env.production" if os.getenv("ENVIRONMENT") == "production" else ".env"
-load_dotenv(env_file)
+load_dotenv(dotenv_path=env_file)
 
-ENVIRONMENT = os.getenv("ENVIRONMENT", "development")
-HOST = os.getenv("HOST", "0.0.0.0")
-PORT = int(os.getenv("PORT", 8000))
-LOG_LEVEL = os.getenv("LOG_LEVEL", "debug")
+ENVIRONMENT = os.getenv("ENVIRONMENT")
+HOST = os.getenv("HOST")
+PORT = int(os.getenv("PORT"))
+LOG_LEVEL = os.getenv("LOG_LEVEL")
 
 app = FastAPI(title="Sentiment Analysis API", debug=(ENVIRONMENT == "development"))
 

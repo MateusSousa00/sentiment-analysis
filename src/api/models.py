@@ -1,12 +1,22 @@
 import os
 import joblib
+from dotenv import load_dotenv
 from transformers import pipeline, AutoModelForSequenceClassification, AutoTokenizer
 
-baseline_model = joblib.load("src/models/baseline_model/baseline_model.pkl")
-vectorizer = joblib.load("src/models/baseline_model/tfidf_vectorizer.pkl")
+env_file = ".env.production" if os.getenv("ENVIRONMENT") == "production" else ".env"
+load_dotenv(dotenv_path=env_file)
 
-MODEL_PATH = "src/models/transformer_finetuned"
-HUGGINGFACE_MODEL = "Mateussousa00/sentiment-analysis-model"
+MODEL_PATH = os.getenv("MODEL_PATH")
+HUGGINGFACE_MODEL = os.getenv("HUGGINGFACE_MODEL")
+BASELINE_MODEL_PATH = os.getenv("BASELINE_MODEL_PATH")
+VECTORIZER_PATH = os.getenv("VECTORIZER_PATH")
+
+baseline_model = joblib.load(BASELINE_MODEL_PATH)
+vectorizer = joblib.load(VECTORIZER_PATH)
+
+if not all([MODEL_PATH, HUGGINGFACE_MODEL, BASELINE_MODEL_PATH, VECTORIZER_PATH]):
+    raise EnvironmentError("🚨 Missing environment variables! Ensure MODEL_PATH, HUGGINGFACE_MODEL, BASELINE_MODEL_PATH, and VECTORIZER_PATH are set.")
+
 
 def load_transformer_model():
     """Loads the transformer model, either locally or from Hugging Face."""
