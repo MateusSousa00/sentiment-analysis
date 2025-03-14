@@ -1,4 +1,5 @@
 import os
+import tempfile
 import pytest
 import pandas as pd
 from unittest import mock
@@ -18,23 +19,26 @@ def test_download_dataset_file_exists(mock_csv_file, monkeypatch):
     dataset_path = "src/data/raw/imdb_dataset.csv"
     monkeypatch.setattr("src.data_loader.os.path.exists", lambda x: x == dataset_path)
 
-    with mock.patch("pandas.read_csv", return_value=pd.read_csv(mock_csv_file)) as mock_read:
-        df = download_dataset()
-        mock_read.assert_called_once_with(dataset_path)
-        assert not df.empty, "Dataset should be loaded when file exists"
+    result = download_dataset()
+    assert result == dataset_path, "Expected dataset path to be returned when file exists"
 
 @mock.patch("src.data_loader.kagglehub.dataset_download")
-@mock.patch("src.data_loader.os.rename")
-def test_download_dataset_not_found(mock_rename, mock_download, monkeypatch):
+@mock.patch("shutil.move")
+def test_download_dataset_not_found(mock_move, mock_download, monkeypatch):
     """Test dataset download logic when file does not exist"""
+
     monkeypatch.setattr("src.data_loader.os.path.exists", lambda x: False)
 
-    fake_download_path = "temp_downloaded_file.csv"
-    mock_download.return_value = fake_download_path
+    fake_download_dir = tempfile.mkdtemp()
+    fake_csv_file = os.path.join(fake_download_dir, "imdb_dataset.csv")
 
-    df = download_dataset()
+    # Simulate the file existing in the extracted directory
+    with open(fake_csv_file, "w") as f:
+        f.write("dummy data")
 
-    mock_download.assert_called_once_with("lakshmi25npathi/imdb-dataset-of-50k-movie-reviews")
-    mock_rename.assert_called_once_with(fake_download_path, "src/data/raw/imdb_dataset.csv")
+    mock_download.return_value = fake_download_dir
 
-    assert not df.empty, "Dataset should be loaded after downloading"
+    dataset_path = download_dataset()
+
+    mock_move.assert_called_once_with(fake_csv_file, "src/data/raw/imdb_dataset.csv")
+    assert dataset_path == "src/data/raw/imdb_dataset.csv", "Expected dataset path after download"

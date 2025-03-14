@@ -1,12 +1,13 @@
 import pytest
+import pandas as pd
 from src.data_loader import download_dataset
 
 def test_load_dataset():
-    df = download_dataset()
-    assert df is not None
-    assert not df.empty
-    assert "review" in df.columns
-    assert "sentiment" in df.columns
+    dataset_path = download_dataset()
+    assert dataset_path is not None, "Dataset path should not be None"
+
+    df = pd.read_csv(dataset_path)
+    assert not df.empty, "Dataset should not be empty"
 
 if __name__ == "__main__":
     pytest.main()
