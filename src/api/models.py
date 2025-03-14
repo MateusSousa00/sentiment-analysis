@@ -10,11 +10,11 @@ HUGGINGFACE_MODEL = "Mateussousa00/sentiment-analysis-model"
 
 def load_transformer_model():
     """Loads the transformer model, either locally or from Hugging Face."""
-    if os.path.exists(MODEL_PATH) and os.path.isfile(f"{MODEL_PATH}/config.json"):
-        print("Found locally trained transformer model.")
+    if os.path.exists(f"{MODEL_PATH}/config.json") and os.path.exists(f"{MODEL_PATH}/pytorch_model.bin"):
+        print("✅ Found locally trained transformer model.")
         return pipeline("sentiment-analysis", model=MODEL_PATH)
     
-    print("Local model not found. Downloading from Hugging Face...")
+    print("⚠️ Local model not found. Downloading from Hugging Face...")
     tokenizer = AutoTokenizer.from_pretrained(HUGGINGFACE_MODEL)
     model = AutoModelForSequenceClassification.from_pretrained(HUGGINGFACE_MODEL)
 
@@ -22,7 +22,7 @@ def load_transformer_model():
     model.save_pretrained(MODEL_PATH)
     tokenizer.save_pretrained(MODEL_PATH)
 
-    print(f"Model downloaded and saved to {MODEL_PATH}.")
+    print(f"✅ Model downloaded and saved to {MODEL_PATH}.")
     return pipeline("sentiment-analysis", model=model, tokenizer=tokenizer)
 
 def predict_sentiment(text: str, model_type: str = "baseline"):

@@ -33,14 +33,12 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          if [ ! -f "src/models/transformer_finetuned/config.json" ]; then
-            echo "Model not found locally. Downloading from Hugging Face..."
-            mkdir -p src/models/transformer_finetuned
-            huggingface-cli login --token $HF_TOKEN
-            huggingface-cli download Mateussousa00/sentiment-analysis-model --local-dir src/models/transformer_finetuned
-          else
-            echo "Model found locally."
-          fi
+          rm -rf src/models/transformer_finetuned  # Force fresh download
+          echo "Model not found locally. Downloading from Hugging Face..."
+          mkdir -p src/models/transformer_finetuned
+          huggingface-cli login --token $HF_TOKEN
+          huggingface-cli download Mateussousa00/sentiment-analysis-model --local-dir src/models/transformer_finetuned
+          ls -lh src/models/transformer_finetuned  # Debugging check
 
       - name: Run Full Pipeline (Dataset, Preprocessing, Training)
         run: |
