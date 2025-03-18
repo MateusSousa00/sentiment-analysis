@@ -114,7 +114,7 @@ jobs:
           HF_REPO: ${{ secrets.HF_REPO }}                
         run: |
           # Ensure the Hugging Face repo exists
-          huggingface-cli repo create spaces/$HF_USERNAME/$HF_REPO --type=space --token "$HF_TOKEN" || echo "Repo already exists"
+          huggingface-cli repo create ${{ secrets.HUGGINGFACE_API }} --type=space || echo "Repo already exists"
           
           # Tag the Docker image for Hugging Face
           HF_IMAGE="docker.io/spaces/$HF_USERNAME/$HF_REPO"
