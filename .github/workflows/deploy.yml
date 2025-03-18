@@ -85,17 +85,12 @@ jobs:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           IMAGE_NAME: sentiment-analysis-api
         run: |      
-          # Make branch names safe for Docker tags
           BRANCH_NAME=$(echo "${{ github.ref_name }}" | sed 's/\//-/g')  
           COMMIT_SHA=$(git rev-parse --short HEAD)
-      
-          # Full Docker image name (namespace/repo:tag)
           IMAGE_REPO="$DOCKER_USERNAME/$IMAGE_NAME"
       
-          # Build Docker image with multiple tags
           docker build -t $IMAGE_REPO:$BRANCH_NAME -t $IMAGE_REPO:$BRANCH_NAME-$COMMIT_SHA .
       
-          # Push both tags
           docker push $IMAGE_REPO:$BRANCH_NAME
           docker push $IMAGE_REPO:$BRANCH_NAME-$COMMIT_SHA
       
@@ -114,19 +109,10 @@ jobs:
           HF_REPO: "sentiment-analysis-api"
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          # Authenticate with Hugging Face
-          echo "$HF_TOKEN" | huggingface-cli login --token "$HF_TOKEN"
-
-          # Define the correct Hugging Face container repo (NO "spaces/" in the name)
           HF_IMAGE="ghcr.io/$HUGGINGFACE_USERNAME/$HF_REPO"
-
-          # Ensure lowercase repo name
           HF_IMAGE=$(echo $HF_IMAGE | tr '[:upper:]' '[:lower:]')
 
-          # Tag the Docker image properly
           docker tag ${{ secrets.DOCKER_USERNAME }}/sentiment-analysis-api:latest $HF_IMAGE:latest
-
-          # Push the image to Hugging Face
           docker push $HF_IMAGE:latest
 
   deploy_huggingface:
@@ -140,9 +126,22 @@ jobs:
         run: pip install huggingface_hub
 
       - name: Log in to Hugging Face
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          huggingface-cli login --token "${{ secrets.HF_TOKEN }}"
+          huggingface-cli login --token "$HF_TOKEN"
 
-      - name: Update Hugging Face Space
+      - name: Deploy Hugging Face Space
+        env:
+          HUGGINGFACE_USERNAME: ${{ secrets.HUGGINGFACE_USERNAME }}
+          HF_REPO: "sentiment-analysis-api"
         run: |
-          huggingface-cli repo update --repo-type=space ${{ secrets.HUGGINGFACE_API }} --token "${{ secrets.HF_TOKEN }}"
+          git clone https://huggingface.co/spaces/$HUGGINGFACE_USERNAME/$HF_REPO space_repo
+          cd space_repo
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          echo "FROM ghcr.io/$HUGGINGFACE_USERNAME/$HF_REPO:latest" > Dockerfile
+          echo 'CMD ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "-w", "4", "-b", "0.0.0.0:7860", "src.api.main:app"]' >> Dockerfile
+          git add Dockerfile
+          git commit -m "Deploy updated API"
+          git push origin main
