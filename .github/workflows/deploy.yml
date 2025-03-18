@@ -110,15 +110,18 @@ jobs:
 
       - name: Deploy Docker Image to Hugging Face Spaces
         env:
-          HF_USERNAME: ${{ secrets.HUGGINGFACE_USERNAME }}  
-          HF_REPO: ${{ secrets.HF_REPO }}                
+          HUGGINGFACE_USERNAME: ${{ secrets.HUGGINGFACE_USERNAME }}
+          HF_REPO: "sentiment-analysis-api"
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          # Ensure the Hugging Face repo exists
-          huggingface-cli repo create ${{ secrets.HUGGINGFACE_API }} --type=space || echo "Repo already exists"
+          # Authenticate with Hugging Face
+          echo "$HF_TOKEN" | huggingface-cli login --token "$HF_TOKEN"
           
-          # Tag the Docker image for Hugging Face
-          HF_IMAGE="docker.io/spaces/$HF_USERNAME/$HF_REPO"
-          docker tag $IMAGE_REPO:latest $HF_IMAGE:latest
+          # Define the Hugging Face container repo
+          HF_IMAGE="docker.io/spaces/$HUGGINGFACE_USERNAME/$HF_REPO"
+      
+          # Tag the Docker image properly
+          docker tag ${{ secrets.DOCKER_USERNAME }}/sentiment-analysis-api:latest $HF_IMAGE:latest
           
           # Push the image to Hugging Face
           docker push $HF_IMAGE:latest
