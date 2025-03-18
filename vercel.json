@@ -1,16 +1,34 @@
 {
-    "version": 2,
-    "builds": [
-      {
-        "src": "src/api/main.py",
-        "use": "@vercel/python"
-      }
-    ],
-    "routes": [
-      {
-        "src": "/(.*)",
-        "dest": "src/api/main.py"
-      }
-    ]
-  }
-  
+  "version": 2,
+  "builds": [
+    {
+      "src": "src/api/main.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "src/api/main.py"
+    }
+  ],
+  "ignore": [
+    "tests/*",
+    "notebooks/*",
+    "__pycache__/*",
+    "*.ipynb",
+    "*.log",
+    "*.csv",
+    "*.xlsx",
+    "datasets/*",
+    "src/models/**/*.pkl",
+    "src/models/**/*.safetensors",
+    "src/models/**/*.bin",
+    "src/models/*.pt",
+    "src/models/*.bin",
+    "src/models/*.h5",
+    "src/models/*.pkl",
+    "src/models/**/checkpoint*/",
+    "src/models/**/vocab.txt"
+  ]
+}
