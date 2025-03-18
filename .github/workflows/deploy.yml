@@ -109,6 +109,23 @@ jobs:
       - name: Install Vercel CLI
         run: npm install -g vercel
 
+      - name: Download Transformer Model from Hugging Face
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          MODEL_PATH: "src/models/transformer_finetuned"
+          HUGGINGFACE_MODEL: ${{ secrets.HUGGINGFACE_MODEL }}
+        run: |
+          rm -rf src/models/transformer_finetuned
+          echo "Model not found locally. Downloading from Hugging Face..."
+          mkdir -p $MODEL_PATH
+          huggingface-cli login --token $HF_TOKEN
+          huggingface-cli download $HUGGINGFACE_MODEL --local-dir $MODEL_PATH
+          ls -lh $MODEL_PATH
+
+      - name: Run Full Pipeline (Dataset, Preprocessing, Training)
+        run: |
+          python run_pipeline.py || { echo "Pipeline failed. Stopping build."; exit 1; }
+
       - name: Deploy to Vercel
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
