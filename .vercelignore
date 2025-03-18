@@ -1,0 +1,13 @@
+tests/*
+notebooks/*
+__pycache__/*
+
+
+*.ipynb
+*.log
+*.csv
+*.xlsx
+datasets/*
+
+src/models/baseline_model/*
+src/models/transformer_finetuned/*

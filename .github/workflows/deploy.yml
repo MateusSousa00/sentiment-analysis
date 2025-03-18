@@ -112,11 +112,6 @@ jobs:
       - name: Deploy to Vercel
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          HUGGINGFACE_MODEL: ${{ secrets.HUGGINGFACE_MODEL }}
         run: |
-          vercel --prod --yes --token $VERCEL_TOKEN
-  
-      - name: Start FastAPI Server on Vercel
-        run: |
-          vercel env pull .env
-          echo "Starting FastAPI on Vercel..."
-          uvicorn src.api.main:app --host ${{ secrets.HOST }} --port ${{ secrets.PORT }} --log-level ${{ secrets.LOG_LEVEL }}
+          vercel --token $VERCEL_TOKEN --yes --prod
