@@ -93,27 +93,6 @@ jobs:
       
           docker push $IMAGE_REPO:$BRANCH_NAME
           docker push $IMAGE_REPO:$BRANCH_NAME-$COMMIT_SHA
-      
-      - name: Install Hugging Face CLI
-        run: pip install huggingface_hub
-
-      - name: Authenticate with Hugging Face
-        env:
-          HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: |
-          huggingface-cli login --token "$HF_TOKEN"
-
-      - name: Deploy Docker Image to Hugging Face Spaces
-        env:
-          HUGGINGFACE_USERNAME: ${{ secrets.HUGGINGFACE_USERNAME }}
-          HF_REPO: "sentiment-analysis-api"
-          HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: |
-          HF_IMAGE="ghcr.io/$HUGGINGFACE_USERNAME/$HF_REPO"
-          HF_IMAGE=$(echo $HF_IMAGE | tr '[:upper:]' '[:lower:]')
-
-          docker tag ${{ secrets.DOCKER_USERNAME }}/sentiment-analysis-api:latest $HF_IMAGE:latest
-          docker push $HF_IMAGE:latest
 
   deploy_huggingface:
     runs-on: ubuntu-latest
@@ -125,23 +104,16 @@ jobs:
       - name: Install Hugging Face CLI
         run: pip install huggingface_hub
 
-      - name: Log in to Hugging Face
+      - name: Authenticate with Hugging Face
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: |
-          huggingface-cli login --token "$HF_TOKEN"
+        run: huggingface-cli login --token "$HF_TOKEN"
 
-      - name: Deploy Hugging Face Space
+      - name: Trigger Hugging Face Space Redeploy
         env:
           HUGGINGFACE_USERNAME: ${{ secrets.HUGGINGFACE_USERNAME }}
-          HF_REPO: "sentiment-analysis-api"
+          HF_SPACE: "sentiment-analysis-api"
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
-          git clone https://huggingface.co/spaces/$HUGGINGFACE_USERNAME/$HF_REPO space_repo
-          cd space_repo
-          git config user.name "github-actions"
-          git config user.email "actions@github.com"
-          echo "FROM ghcr.io/$HUGGINGFACE_USERNAME/$HF_REPO:latest" > Dockerfile
-          echo 'CMD ["gunicorn", "-k", "uvicorn.workers.UvicornWorker", "-w", "4", "-b", "0.0.0.0:7860", "src.api.main:app"]' >> Dockerfile
-          git add Dockerfile
-          git commit -m "Deploy updated API"
-          git push origin main
+          curl -X POST https://huggingface.co/api/spaces/$HUGGINGFACE_USERNAME/$HF_SPACE/restart -H "Authorization: Bearer $HF_TOKEN"
+        
