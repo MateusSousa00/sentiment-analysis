@@ -4,8 +4,8 @@ FROM python:3.13-slim
 # Set working directory
 WORKDIR /app
 
-ENV TRANSFORMERS_CACHE=/app/cache
-RUN mkdir -p /app/cache && chmod -R 777 /app/cache
+ENV HF_HOME=/app/cache
+RUN mkdir -p $HF_HOME && chmod -R 777 $HF_HOME
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y gcc && rm -rf /var/lib/apt/lists/*
