@@ -117,7 +117,7 @@ jobs:
           git config --global user.email ${{ secrets.G_EMAIL }}
           git config --global user.name ${{ secrets.G_NAME }}
   
-          git clone https://huggingface.co/spaces/$HUGGINGFACE_USERNAME/$HF_SPACE
+          git clone https://$HUGGINGFACE_USERNAME:$HF_TOKEN@huggingface.co/spaces/$HUGGINGFACE_USERNAME/$HF_SPACE || echo "Clone by https failed"
           cd $HF_SPACE
   
           rsync -av --exclude='.git' $GITHUB_WORKSPACE/ . 
@@ -125,12 +125,7 @@ jobs:
           git add .
           git commit -m "Auto-deploy from GitHub Actions" || echo "No changes to commit"
 
-          git config --global credential.helper store
-          echo "https://user:$HF_TOKEN@huggingface.co" > ~/.git-credentials
-
-          # Push the code
-          git push origin main
-
+          git push https://$HUGGINGFACE_USERNAME:$HF_TOKEN@huggingface.co/spaces/$HUGGINGFACE_USERNAME/$HF_SPACE HEAD:main || echo "Push via HTTPS falhou"
   
       - name: Restart Hugging Face Space
         env:
