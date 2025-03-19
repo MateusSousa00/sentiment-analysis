@@ -33,6 +33,7 @@ jobs:
           echo "HUGGINGFACE_MODEL=${{ secrets.HUGGINGFACE_MODEL }}" >> $GITHUB_ENV
           echo "BASELINE_MODEL_PATH=${{ secrets.BASELINE_MODEL_PATH }}" >> $GITHUB_ENV
           echo "VECTORIZER_PATH=${{ secrets.VECTORIZER_PATH }}" >> $GITHUB_ENV
+          echo "HF_TOKEN=${{ secrets.HF_TOKEN }}" >> $GITHUB_ENV
 
       - name: Authenticate with Hugging Face
         env:
@@ -73,6 +74,18 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+
+      - name: Set Environment Variables
+        run: |
+          echo "ENVIRONMENT=${{ secrets.ENVIRONMENT }}" >> $GITHUB_ENV
+          echo "HOST=${{ secrets.HOST }}" >> $GITHUB_ENV
+          echo "PORT=${{ secrets.PORT }}" >> $GITHUB_ENV
+          echo "LOG_LEVEL=${{ secrets.LOG_LEVEL }}" >> $GITHUB_ENV
+          echo "MODEL_PATH=${{ secrets.MODEL_PATH }}" >> $GITHUB_ENV
+          echo "HUGGINGFACE_MODEL=${{ secrets.HUGGINGFACE_MODEL }}" >> $GITHUB_ENV
+          echo "BASELINE_MODEL_PATH=${{ secrets.BASELINE_MODEL_PATH }}" >> $GITHUB_ENV
+          echo "VECTORIZER_PATH=${{ secrets.VECTORIZER_PATH }}" >> $GITHUB_ENV
+          echo "HF_TOKEN=${{ secrets.HF_TOKEN }}" >> $GITHUB_ENV
       
       - name: Build Docker Image
         run: docker build -t ${{ secrets.DOCKER_USERNAME }}/sentiment-analysis-api:latest .
@@ -100,6 +113,18 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+
+      - name: Set Environment Variables
+        run: |
+          echo "ENVIRONMENT=${{ secrets.ENVIRONMENT }}" >> $GITHUB_ENV
+          echo "HOST=${{ secrets.HOST }}" >> $GITHUB_ENV
+          echo "PORT=${{ secrets.PORT }}" >> $GITHUB_ENV
+          echo "LOG_LEVEL=${{ secrets.LOG_LEVEL }}" >> $GITHUB_ENV
+          echo "MODEL_PATH=${{ secrets.MODEL_PATH }}" >> $GITHUB_ENV
+          echo "HUGGINGFACE_MODEL=${{ secrets.HUGGINGFACE_MODEL }}" >> $GITHUB_ENV
+          echo "BASELINE_MODEL_PATH=${{ secrets.BASELINE_MODEL_PATH }}" >> $GITHUB_ENV
+          echo "VECTORIZER_PATH=${{ secrets.VECTORIZER_PATH }}" >> $GITHUB_ENV
+          echo "HF_TOKEN=${{ secrets.HF_TOKEN }}" >> $GITHUB_ENV
 
       - name: Install Hugging Face CLI
         run: pip install huggingface_hub

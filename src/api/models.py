@@ -21,8 +21,11 @@ BASELINE_MODEL_PATH = hf_hub_download(
 baseline_model = joblib.load(BASELINE_MODEL_PATH)
 vectorizer = joblib.load(VECTORIZER_PATH)
 
-if not all([MODEL_PATH, HUGGINGFACE_MODEL, BASELINE_MODEL_PATH, VECTORIZER_PATH]):
-    raise EnvironmentError("Missing environment variables! Ensure MODEL_PATH, HUGGINGFACE_MODEL, BASELINE_MODEL_PATH, and VECTORIZER_PATH are set.")
+if not all([HUGGINGFACE_MODEL, HF_TOKEN]):
+    raise EnvironmentError("Missing Hugging Face credentials! Ensure HUGGINGFACE_MODEL and HF_TOKEN are set.")
+
+if not all([MODEL_PATH, VECTORIZER_PATH]):
+    raise EnvironmentError("Missing model paths! Ensure MODEL_PATH and VECTORIZER_PATH are set.")
 
 
 def load_transformer_model():
