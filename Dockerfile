@@ -4,7 +4,7 @@ FROM python:3.13-slim
 # Set working directory
 WORKDIR /app
 
-ENV HF_HOME=/app/cache
+ENV HF_HOME=/tmp/huggingface_cache
 RUN mkdir -p $HF_HOME && chmod -R 777 $HF_HOME
 
 # Install system dependencies

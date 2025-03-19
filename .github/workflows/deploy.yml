@@ -116,7 +116,7 @@ jobs:
 
       - name: Set Hugging Face Cache Directory
         run: |
-          export HF_HOME=/app/cache
+          export HF_HOME=/tmp/huggingface_cache
           mkdir -p $HF_HOME
           chmod -R 777 $HF_HOME
 
