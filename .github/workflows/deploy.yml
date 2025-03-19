@@ -117,18 +117,19 @@ jobs:
           git config --global user.email ${{ secrets.G_EMAIL }}
           git config --global user.name ${{ secrets.G_NAME }}
   
-          git clone https://user:$HF_TOKEN@huggingface.co/spaces/$HUGGINGFACE_USERNAME/$HF_SPACE
+          git clone https://huggingface.co/spaces/$HUGGINGFACE_USERNAME/$HF_SPACE
           cd $HF_SPACE
   
           rsync -av --exclude='.git' $GITHUB_WORKSPACE/ . 
   
           git add .
           git commit -m "Auto-deploy from GitHub Actions" || echo "No changes to commit"
-          
-          GIT_ASKPASS="$(mktemp)"
-          echo "echo \$HF_TOKEN" > $GIT_ASKPASS
-          chmod +x $GIT_ASKPASS
-          GIT_ASKPASS=$GIT_ASKPASS git push https://huggingface.co/spaces/$HUGGINGFACE_USERNAME/$HF_SPACE HEAD:main
+
+          git config --global credential.helper store
+          echo "https://user:$HF_TOKEN@huggingface.co" > ~/.git-credentials
+
+          # Push the code
+          git push origin main
 
   
       - name: Restart Hugging Face Space
