@@ -109,11 +109,29 @@ jobs:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: huggingface-cli login --token "$HF_TOKEN"
 
-      - name: Trigger Hugging Face Space Redeploy
+      - name: Push Code to Hugging Face
+        env:
+          HUGGINGFACE_USERNAME: ${{ secrets.HUGGINGFACE_USERNAME }}
+          HF_SPACE: "sentiment-analysis-api"
+        run: |
+          git config --global user.email ${{ secrets.G_EMAIL }}
+          git config --global user.name ${{ secrets.G_NAME }}
+  
+          # Clone the repo and update it
+          git clone https://huggingface.co/spaces/$HUGGINGFACE_USERNAME/$HF_SPACE
+          cd $HF_SPACE
+  
+          # Copy all files from the GitHub repo
+          rsync -av --exclude='.git' ../sentiment-analysis/ .  
+  
+          git add .
+          git commit -m "Auto-deploy from GitHub Actions" || echo "No changes to commit"
+          git push
+  
+      - name: Restart Hugging Face Space
         env:
           HUGGINGFACE_USERNAME: ${{ secrets.HUGGINGFACE_USERNAME }}
           HF_SPACE: "sentiment-analysis-api"
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
           curl -X POST https://huggingface.co/api/spaces/$HUGGINGFACE_USERNAME/$HF_SPACE/restart -H "Authorization: Bearer $HF_TOKEN"
-        
