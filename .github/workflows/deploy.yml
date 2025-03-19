@@ -75,24 +75,24 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Set Environment Variables
-        run: |
-          echo "ENVIRONMENT=${{ secrets.ENVIRONMENT }}" >> $GITHUB_ENV
-          echo "HOST=${{ secrets.HOST }}" >> $GITHUB_ENV
-          echo "PORT=${{ secrets.PORT }}" >> $GITHUB_ENV
-          echo "LOG_LEVEL=${{ secrets.LOG_LEVEL }}" >> $GITHUB_ENV
-          echo "MODEL_PATH=${{ secrets.MODEL_PATH }}" >> $GITHUB_ENV
-          echo "HUGGINGFACE_MODEL=${{ secrets.HUGGINGFACE_MODEL }}" >> $GITHUB_ENV
-          echo "BASELINE_MODEL_PATH=${{ secrets.BASELINE_MODEL_PATH }}" >> $GITHUB_ENV
-          echo "VECTORIZER_PATH=${{ secrets.VECTORIZER_PATH }}" >> $GITHUB_ENV
-          echo "HF_TOKEN=${{ secrets.HF_TOKEN }}" >> $GITHUB_ENV
-      
       - name: Build Docker Image
-        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/sentiment-analysis-api:latest .
+        run: |
+          docker build \
+            --build-arg ENVIRONMENT=${{ secrets.ENVIRONMENT }} \
+            --build-arg HOST=${{ secrets.HOST }} \
+            --build-arg PORT=${{ secrets.PORT }} \
+            --build-arg LOG_LEVEL=${{ secrets.LOG_LEVEL }} \
+            --build-arg MODEL_PATH=${{ secrets.MODEL_PATH }} \
+            --build-arg HUGGINGFACE_MODEL=${{ secrets.HUGGINGFACE_MODEL }} \
+            --build-arg BASELINE_MODEL_PATH=${{ secrets.BASELINE_MODEL_PATH }} \
+            --build-arg VECTORIZER_PATH=${{ secrets.VECTORIZER_PATH }} \
+            -t ${{ secrets.DOCKER_USERNAME }}/sentiment-analysis-api:latest .
+
+          docker tag ${{ secrets.DOCKER_USERNAME }}/sentiment-analysis-api:latest huggingface.co/${{ secrets.HUGGINGFACE_USERNAME }}/sentiment-analysis-api:latest
 
       - name: Log in to Docker Hub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
-      
+
       - name: Build and push Docker images
         env:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
@@ -106,6 +106,15 @@ jobs:
       
           docker push $IMAGE_REPO:$BRANCH_NAME
           docker push $IMAGE_REPO:$BRANCH_NAME-$COMMIT_SHA
+
+      - name: Log in to Hugging Face Docker Registry
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: echo "$HF_TOKEN" | docker login --username ${{ secrets.HUGGINGFACE_USERNAME }} --password-stdin huggingface.co
+
+      - name: Push Docker Image to Hugging Face
+        run: docker push huggingface.co/${{ secrets.HUGGINGFACE_USERNAME }}/sentiment-analysis-api:latest
+      
 
   deploy_huggingface:
     runs-on: ubuntu-latest
