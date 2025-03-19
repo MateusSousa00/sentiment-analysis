@@ -14,6 +14,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application files
 COPY . .
 
+# Copy the model files into the correct directory inside the container
+COPY src/models/baseline_model.pkl /app/models/baseline_model.pkl
+
 # Expose FastAPI port
 EXPOSE 7860
 

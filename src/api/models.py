@@ -1,5 +1,6 @@
 import os
 import joblib
+from huggingface_hub import hf_hub_download
 from dotenv import load_dotenv
 from transformers import pipeline, AutoModelForSequenceClassification, AutoTokenizer
 
@@ -8,14 +9,20 @@ load_dotenv(dotenv_path=env_file)
 
 MODEL_PATH = os.getenv("MODEL_PATH")
 HUGGINGFACE_MODEL = os.getenv("HUGGINGFACE_MODEL")
-BASELINE_MODEL_PATH = os.getenv("BASELINE_MODEL_PATH")
 VECTORIZER_PATH = os.getenv("VECTORIZER_PATH")
+HF_TOKEN = os.getenv("HF_TOKEN")
+
+BASELINE_MODEL_PATH = hf_hub_download(
+    repo_id=HUGGINGFACE_MODEL,
+    filename="baseline_model.pkl",
+    token=HF_TOKEN
+)
 
 baseline_model = joblib.load(BASELINE_MODEL_PATH)
 vectorizer = joblib.load(VECTORIZER_PATH)
 
 if not all([MODEL_PATH, HUGGINGFACE_MODEL, BASELINE_MODEL_PATH, VECTORIZER_PATH]):
-    raise EnvironmentError("🚨 Missing environment variables! Ensure MODEL_PATH, HUGGINGFACE_MODEL, BASELINE_MODEL_PATH, and VECTORIZER_PATH are set.")
+    raise EnvironmentError("Missing environment variables! Ensure MODEL_PATH, HUGGINGFACE_MODEL, BASELINE_MODEL_PATH, and VECTORIZER_PATH are set.")
 
 
 def load_transformer_model():
