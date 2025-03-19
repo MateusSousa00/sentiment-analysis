@@ -8,7 +8,7 @@ env_file = ".env.production" if os.getenv("ENVIRONMENT") == "production" else ".
 load_dotenv(dotenv_path=env_file)
 
 MODEL_PATH = os.getenv("MODEL_PATH")
-HUGGINGFACE_MODEL = os.getenv("HUGGINGFACE_MODEL")
+HUGGINGFACE_MODEL = "Mateussousa00/sentiment-analysis-model"
 VECTORIZER_PATH = os.getenv("VECTORIZER_PATH")
 HF_TOKEN = os.getenv("HF_TOKEN")
 

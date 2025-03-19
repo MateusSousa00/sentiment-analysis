@@ -30,7 +30,7 @@ jobs:
           echo "PORT=${{ secrets.PORT }}" >> $GITHUB_ENV
           echo "LOG_LEVEL=${{ secrets.LOG_LEVEL }}" >> $GITHUB_ENV
           echo "MODEL_PATH=${{ secrets.MODEL_PATH }}" >> $GITHUB_ENV
-          echo "HUGGINGFACE_MODEL=${{ secrets.HUGGINGFACE_MODEL }}" >> $GITHUB_ENV
+          echo "HUGGINGFACE_MODEL=Mateussousa00/sentiment-analysis-model" >> $GITHUB_ENV
           echo "BASELINE_MODEL_PATH=${{ secrets.BASELINE_MODEL_PATH }}" >> $GITHUB_ENV
           echo "VECTORIZER_PATH=${{ secrets.VECTORIZER_PATH }}" >> $GITHUB_ENV
           echo "HF_TOKEN=${{ secrets.HF_TOKEN }}" >> $GITHUB_ENV
@@ -45,7 +45,7 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
           MODEL_PATH: "src/models/transformer_finetuned"
-          HUGGINGFACE_MODEL: ${{ secrets.HUGGINGFACE_MODEL }}
+          HUGGINGFACE_MODEL: "Mateussousa00/sentiment-analysis-model"
         run: |
           rm -rf src/models/transformer_finetuned
           echo "Model not found locally. Downloading from Hugging Face..."
@@ -82,7 +82,7 @@ jobs:
           echo "PORT=${{ secrets.PORT }}" >> $GITHUB_ENV
           echo "LOG_LEVEL=${{ secrets.LOG_LEVEL }}" >> $GITHUB_ENV
           echo "MODEL_PATH=${{ secrets.MODEL_PATH }}" >> $GITHUB_ENV
-          echo "HUGGINGFACE_MODEL=${{ secrets.HUGGINGFACE_MODEL }}" >> $GITHUB_ENV
+          echo "HUGGINGFACE_MODEL=Mateussousa00/sentiment-analysis-model" >> $GITHUB_ENV
           echo "BASELINE_MODEL_PATH=${{ secrets.BASELINE_MODEL_PATH }}" >> $GITHUB_ENV
           echo "VECTORIZER_PATH=${{ secrets.VECTORIZER_PATH }}" >> $GITHUB_ENV
           echo "HF_TOKEN=${{ secrets.HF_TOKEN }}" >> $GITHUB_ENV
@@ -116,7 +116,7 @@ jobs:
 
       - name: Set Hugging Face Cache Directory
         run: |
-          echo "TRANSFORMERS_CACHE=/tmp/huggingface_cache" >> $GITHUB_ENV
+          echo "HF_HOME=/tmp/huggingface_cache" >> $GITHUB_ENV
 
       - name: Set Environment Variables
         run: |
@@ -125,7 +125,7 @@ jobs:
           echo "PORT=${{ secrets.PORT }}" >> $GITHUB_ENV
           echo "LOG_LEVEL=${{ secrets.LOG_LEVEL }}" >> $GITHUB_ENV
           echo "MODEL_PATH=${{ secrets.MODEL_PATH }}" >> $GITHUB_ENV
-          echo "HUGGINGFACE_MODEL=${{ secrets.HUGGINGFACE_MODEL }}" >> $GITHUB_ENV
+          echo "HUGGINGFACE_MODEL=Mateussousa00/sentiment-analysis-model" >> $GITHUB_ENV
           echo "BASELINE_MODEL_PATH=${{ secrets.BASELINE_MODEL_PATH }}" >> $GITHUB_ENV
           echo "VECTORIZER_PATH=${{ secrets.VECTORIZER_PATH }}" >> $GITHUB_ENV
           echo "HF_TOKEN=${{ secrets.HF_TOKEN }}" >> $GITHUB_ENV
