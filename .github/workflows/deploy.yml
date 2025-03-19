@@ -109,24 +109,31 @@ jobs:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: huggingface-cli login --token "$HF_TOKEN"
 
+      - name: Configure Git for Hugging Face
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          git config --global credential.helper store
+          git config --global user.email "${{ secrets.G_EMAIL }}"
+          git config --global user.name "${{ secrets.G_NAME }}"
+          echo "https://user:$HF_TOKEN@huggingface.co" > ~/.git-credentials
+
       - name: Push Code to Hugging Face
         env:
           HUGGINGFACE_USERNAME: ${{ secrets.HUGGINGFACE_USERNAME }}
           HF_SPACE: "sentiment-analysis-api"
         run: |
-          git config --global user.email ${{ secrets.G_EMAIL }}
-          git config --global user.name ${{ secrets.G_NAME }}
-  
-          git clone https://$HUGGINGFACE_USERNAME:$HF_TOKEN@huggingface.co/spaces/$HUGGINGFACE_USERNAME/$HF_SPACE || echo "Clone by https failed"
+          git clone https://huggingface.co/spaces/$HUGGINGFACE_USERNAME/$HF_SPACE || echo "Clone by HTTPS failed"
           cd $HF_SPACE
-  
+
           rsync -av --exclude='.git' $GITHUB_WORKSPACE/ . 
-  
+
           git add .
           git commit -m "Auto-deploy from GitHub Actions" || echo "No changes to commit"
+          
+          # Push sem passar credenciais na URL
+          git push origin main || echo "Push by HTTPS failed"
 
-          git push https://$HUGGINGFACE_USERNAME:$HF_TOKEN@huggingface.co/spaces/$HUGGINGFACE_USERNAME/$HF_SPACE HEAD:main || echo "Push via HTTPS falhou"
-  
       - name: Restart Hugging Face Space
         env:
           HUGGINGFACE_USERNAME: ${{ secrets.HUGGINGFACE_USERNAME }}
