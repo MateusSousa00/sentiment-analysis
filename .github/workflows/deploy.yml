@@ -107,11 +107,6 @@ jobs:
           docker push $IMAGE_REPO:$BRANCH_NAME
           docker push $IMAGE_REPO:$BRANCH_NAME-$COMMIT_SHA
 
-      - name: Log in to Hugging Face Docker Registry
-        env:
-          HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: echo "$HF_TOKEN" | docker login --username ${{ secrets.HUGGINGFACE_USERNAME }} --password-stdin huggingface.co
-
       - name: Push Docker Image to Hugging Face
         run: docker push huggingface.co/${{ secrets.HUGGINGFACE_USERNAME }}/sentiment-analysis-api:latest
       
@@ -128,18 +123,6 @@ jobs:
           export HF_HOME=/tmp/huggingface_cache
           mkdir -p $HF_HOME
           chmod -R 777 $HF_HOME
-
-      - name: Set Environment Variables
-        run: |
-          echo "ENVIRONMENT=${{ secrets.ENVIRONMENT }}" >> $GITHUB_ENV
-          echo "HOST=${{ secrets.HOST }}" >> $GITHUB_ENV
-          echo "PORT=${{ secrets.PORT }}" >> $GITHUB_ENV
-          echo "LOG_LEVEL=${{ secrets.LOG_LEVEL }}" >> $GITHUB_ENV
-          echo "MODEL_PATH=${{ secrets.MODEL_PATH }}" >> $GITHUB_ENV
-          echo "HUGGINGFACE_MODEL=${{ secrets.HUGGINGFACE_MODEL }}" >> $GITHUB_ENV
-          echo "BASELINE_MODEL_PATH=${{ secrets.BASELINE_MODEL_PATH }}" >> $GITHUB_ENV
-          echo "VECTORIZER_PATH=${{ secrets.VECTORIZER_PATH }}" >> $GITHUB_ENV
-          echo "HF_TOKEN=${{ secrets.HF_TOKEN }}" >> $GITHUB_ENV
 
       - name: Install Hugging Face CLI
         run: pip install huggingface_hub
