@@ -1,3 +1,13 @@
+---
+title: Sentiment Analysis AI
+emoji: 🤖
+colorFrom: blue
+colorTo: green
+sdk: docker
+app_file: Dockerfile
+pinned: false
+---
+
 # Sentiment Analysis AI
 
 A **high-performance Sentiment Analysis Model** that classifies text as **POSITIVE** or **NEGATIVE**, powered by:
