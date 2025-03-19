@@ -13,7 +13,7 @@ ARG MODEL_PATH
 ARG HUGGINGFACE_MODEL
 ARG BASELINE_MODEL_PATH
 ARG VECTORIZER_PATH
-ARG HF_TOKEN  # Keep it as an argument, but do NOT set ENV to avoid leaking it
+ARG HF_TOKEN
 
 # Export them as ENV variables in the container
 ENV ENVIRONMENT=$ENVIRONMENT

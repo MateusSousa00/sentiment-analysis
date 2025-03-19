@@ -107,10 +107,6 @@ jobs:
           docker push $IMAGE_REPO:$BRANCH_NAME
           docker push $IMAGE_REPO:$BRANCH_NAME-$COMMIT_SHA
 
-      - name: Push Docker Image to Hugging Face
-        run: docker push huggingface.co/${{ secrets.HUGGINGFACE_USERNAME }}/sentiment-analysis-api:latest
-      
-
   deploy_huggingface:
     runs-on: ubuntu-latest
     needs: build_docker
