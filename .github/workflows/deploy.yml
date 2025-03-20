@@ -113,17 +113,8 @@ jobs:
       - name: Install Railway CLI
         run: npm install -g @railway/cli
 
-      - name: Link Railway Project
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: |
-          railway link --team "MateusSousa00's Projects" \
-            --project ${{ secrets.RAILWAY_PROJECT_ID }} \
-            --environment ${{ secrets.RAILWAY_ENVIRONMENT_ID }} \
-            --service ${{ secrets.RAILWAY_SERVICE_TOKEN }}
-
       - name: Deploy to Railway
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: railway up --service ${{ secrets.RAILWAY_SERVICE_TOKEN }} --ci
+        run: railway up --service sentiment-analysis-api --ci
 
