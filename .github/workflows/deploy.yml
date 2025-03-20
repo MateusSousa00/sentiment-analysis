@@ -113,10 +113,13 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-    
+
+      - name: Install Railway CLI
+        run: curl -fsSL https://railway.app/install.sh | sh
+
       - name: Authenticate with Railway
         run: railway auth --token ${{ secrets.RAILWAY_SERVICE_TOKEN }}
-    
+
       - name: Deploy to Railway
         run: railway up --service sentiment-analysis-api --project ${{ secrets.RAILWAY_PROJECT_ID }}
 
