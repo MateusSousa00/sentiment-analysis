@@ -30,29 +30,8 @@ jobs:
           echo "PORT=${{ secrets.PORT }}" >> $GITHUB_ENV
           echo "LOG_LEVEL=${{ secrets.LOG_LEVEL }}" >> $GITHUB_ENV
           echo "MODEL_PATH=${{ secrets.MODEL_PATH }}" >> $GITHUB_ENV
-          echo "HUGGINGFACE_MODEL=${{ secrets.HUGGINGFACE_MODEL }}" >> $GITHUB_ENV
           echo "BASELINE_MODEL_PATH=${{ secrets.BASELINE_MODEL_PATH }}" >> $GITHUB_ENV
           echo "VECTORIZER_PATH=${{ secrets.VECTORIZER_PATH }}" >> $GITHUB_ENV
-          echo "HF_TOKEN=${{ secrets.HF_TOKEN }}" >> $GITHUB_ENV
-
-      - name: Authenticate with Hugging Face
-        env:
-          HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: |
-          huggingface-cli login --token "$HF_TOKEN"
-
-      - name: Download Transformer Model from Hugging Face
-        env:
-          HF_TOKEN: ${{ secrets.HF_TOKEN }}
-          MODEL_PATH: "src/models/transformer_finetuned"
-          HUGGINGFACE_MODEL: "${{ secrets.HUGGINGFACE_MODEL }}"
-        run: |
-          rm -rf src/models/transformer_finetuned
-          echo "Model not found locally. Downloading from Hugging Face..."
-          mkdir -p $MODEL_PATH
-          huggingface-cli login --token $HF_TOKEN
-          huggingface-cli download $HUGGINGFACE_MODEL --local-dir $MODEL_PATH
-          ls -lh $MODEL_PATH
 
       - name: Run Full Pipeline (Dataset, Preprocessing, Training)
         run: |
@@ -83,12 +62,11 @@ jobs:
             --build-arg PORT=${{ secrets.PORT }} \
             --build-arg LOG_LEVEL=${{ secrets.LOG_LEVEL }} \
             --build-arg MODEL_PATH=${{ secrets.MODEL_PATH }} \
-            --build-arg HUGGINGFACE_MODEL=${{ secrets.HUGGINGFACE_MODEL }} \
             --build-arg BASELINE_MODEL_PATH=${{ secrets.BASELINE_MODEL_PATH }} \
             --build-arg VECTORIZER_PATH=${{ secrets.VECTORIZER_PATH }} \
             -t ${{ secrets.DOCKER_USERNAME }}/sentiment-analysis-api:latest .
 
-          docker tag ${{ secrets.DOCKER_USERNAME }}/sentiment-analysis-api:latest huggingface.co/${{ secrets.HUGGINGFACE_USERNAME }}/sentiment-analysis-api:latest
+          docker tag ${{ secrets.DOCKER_USERNAME }}/sentiment-analysis-api:latest
 
       - name: Log in to Docker Hub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
@@ -113,19 +91,18 @@ jobs:
     steps:
       - name: Install Railway CLI
         run: npm install -g @railway/cli
-          
-      - name: Authenticate Railway CLI (Non-Interactive)
+
+      - name: Link Railway Project
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: echo "$RAILWAY_TOKEN" | railway login --browserless
-        
-      - name: Link Railway Project (Final Step)
+        run: |
+          railway link --team "MateusSousa00's Projects" \
+            --project ${{ secrets.RAILWAY_PROJECT_ID }} \
+            --environment ${{ secrets.RAILWAY_ENVIRONMENT_ID }} \
+            --service ${{ secrets.RAILWAY_SERVICE_TOKEN }}
+
+      - name: Deploy to Railway
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: railway link --service sentiment-analysis-api --project sentiment-analysis-api
-        
-      - name: Deploy to Railway (Final Step)
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: railway up --service sentiment-analysis-api --ci
+        run: railway up --service ${{ secrets.RAILWAY_SERVICE_TOKEN }} --ci
 
