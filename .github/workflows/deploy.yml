@@ -106,57 +106,21 @@ jobs:
       
           docker push $IMAGE_REPO:$BRANCH_NAME
           docker push $IMAGE_REPO:$BRANCH_NAME-$COMMIT_SHA
-
-  deploy_huggingface:
+  
+  deploy_railway:
     runs-on: ubuntu-latest
     needs: build_docker
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Set Hugging Face Cache Directory
+      - name: Install Railway CLI
         run: |
-          export HF_HOME=/tmp/huggingface_cache
-          mkdir -p $HF_HOME
-          chmod -R 777 $HF_HOME
+          curl -fsSL https://railway.app/install.sh | sh
 
-      - name: Install Hugging Face CLI
-        run: pip install huggingface_hub
-
-      - name: Authenticate with Hugging Face
+      - name: Deploy to Railway
         env:
-          HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: huggingface-cli login --token "$HF_TOKEN"
-
-      - name: Configure Git for Hugging Face
-        env:
-          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
         run: |
-          git config --global credential.helper store
-          git config --global user.email "${{ secrets.G_EMAIL }}"
-          git config --global user.name "${{ secrets.G_NAME }}"
-          echo "https://user:$HF_TOKEN@huggingface.co" > ~/.git-credentials
-
-      - name: Push Code to Hugging Face
-        env:
-          HUGGINGFACE_USERNAME: ${{ secrets.HUGGINGFACE_USERNAME }}
-          HF_SPACE: "sentiment-analysis-api"
-        run: |
-          git clone https://huggingface.co/spaces/$HUGGINGFACE_USERNAME/$HF_SPACE || echo "Clone by HTTPS failed"
-          cd $HF_SPACE
-
-          rsync -av --exclude='.git' $GITHUB_WORKSPACE/ . 
-
-          git add .
-          git commit -m "Auto-deploy from GitHub Actions" || echo "No changes to commit"
-          
-          # Push sem passar credenciais na URL
-          git push origin main || echo "Push by HTTPS failed"
-
-      - name: Restart Hugging Face Space
-        env:
-          HUGGINGFACE_USERNAME: ${{ secrets.HUGGINGFACE_USERNAME }}
-          HF_SPACE: "sentiment-analysis-api"
-          HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: |
-          curl -X POST https://huggingface.co/api/spaces/$HUGGINGFACE_USERNAME/$HF_SPACE/restart -H "Authorization: Bearer $HF_TOKEN"
+          railway up --service sentiment-analysis-api --image $DOCKER_USERNAME/sentiment-analysis-api:latest

@@ -1,48 +1,37 @@
 import os
 import joblib
-from huggingface_hub import hf_hub_download
 from dotenv import load_dotenv
-from transformers import pipeline, AutoModelForSequenceClassification, AutoTokenizer
+from transformers import pipeline, AutoTokenizer, AutoModelForSequenceClassification
 
 env_file = ".env.production" if os.getenv("ENVIRONMENT") == "production" else ".env"
 load_dotenv(dotenv_path=env_file)
 
 MODEL_PATH = os.getenv("MODEL_PATH")
-HUGGINGFACE_MODEL = os.getenv("HUGGINGFACE_MODEL")
+BASELINE_MODEL_PATH = os.getenv("BASELINE_MODEL_PATH")
 VECTORIZER_PATH = os.getenv("VECTORIZER_PATH")
-HF_TOKEN = os.getenv("HF_TOKEN")
 
-BASELINE_MODEL_PATH = hf_hub_download(
-    repo_id=HUGGINGFACE_MODEL,
-    filename="baseline_model.pkl",
-    token=HF_TOKEN
-)
+def find_model_checkpoint(model_path):
+    """ Procura pelo primeiro checkpoint válido dentro do diretório do modelo. """
+    for root, dirs, files in os.walk(model_path):
+        if "pytorch_model.bin" in files or "model.safetensors" in files:
+            return root
+    return None
+
+MODEL_CHECKPOINT_PATH = find_model_checkpoint(MODEL_PATH)
+
+if MODEL_CHECKPOINT_PATH is None:
+    raise FileNotFoundError(f"No model found on{MODEL_CHECKPOINT_PATH}!")
 
 baseline_model = joblib.load(BASELINE_MODEL_PATH)
 vectorizer = joblib.load(VECTORIZER_PATH)
 
-if not all([HUGGINGFACE_MODEL, HF_TOKEN]):
-    raise EnvironmentError("Missing Hugging Face credentials! Ensure HUGGINGFACE_MODEL and HF_TOKEN are set.")
-
-if not all([MODEL_PATH, VECTORIZER_PATH]):
-    raise EnvironmentError("Missing model paths! Ensure MODEL_PATH and VECTORIZER_PATH are set.")
-
-
 def load_transformer_model():
-    """Loads the transformer model, either locally or from Hugging Face."""
-    if os.path.exists(f"{MODEL_PATH}/config.json") and os.path.exists(f"{MODEL_PATH}/pytorch_model.bin"):
-        print("Found locally trained transformer model.")
-        return pipeline("sentiment-analysis", model=MODEL_PATH)
-    
-    print("Local model not found. Downloading from Hugging Face...")
-    tokenizer = AutoTokenizer.from_pretrained(HUGGINGFACE_MODEL)
-    model = AutoModelForSequenceClassification.from_pretrained(HUGGINGFACE_MODEL)
+    """Carrega o modelo transformer corretamente, independentemente do caminho do checkpoint."""
+    print(f"📌 Usando o checkpoint em: {MODEL_CHECKPOINT_PATH}")
 
-    os.makedirs(MODEL_PATH, exist_ok=True)
-    model.save_pretrained(MODEL_PATH)
-    tokenizer.save_pretrained(MODEL_PATH)
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_CHECKPOINT_PATH)
+    model = AutoModelForSequenceClassification.from_pretrained(MODEL_CHECKPOINT_PATH)
 
-    print(f"Model downloaded and saved to {MODEL_PATH}.")
     return pipeline("sentiment-analysis", model=model, tokenizer=tokenizer)
 
 def predict_sentiment(text: str, model_type: str = "baseline"):
@@ -59,12 +48,7 @@ def predict_sentiment(text: str, model_type: str = "baseline"):
     if model_type == "transformer":
         label_mapping = {"LABEL_0": "Negative", "LABEL_1": "Positive", "LABEL_2": "Neutral"}
         
-        try:
-            transformer_model = load_transformer_model()
-        except:
-            print("Model not found locally. Downloading from Hugging Face...")
-            transformer_model = pipeline("sentiment-analysis", model=HUGGINGFACE_MODEL)
-
+        transformer_model = load_transformer_model()
         result = transformer_model(text)[0]
         sentiment = label_mapping.get(result["label"], "Unknown")
         confidence = round(result["score"], 4)

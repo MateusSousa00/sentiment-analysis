@@ -4,7 +4,7 @@ FROM python:3.13-slim
 # Set working directory inside the container
 WORKDIR /app
 
-# Define build arguments (coming from CI/CD)
+# Define arguments
 ARG ENVIRONMENT
 ARG HOST
 ARG PORT
@@ -13,9 +13,8 @@ ARG MODEL_PATH
 ARG HUGGINGFACE_MODEL
 ARG BASELINE_MODEL_PATH
 ARG VECTORIZER_PATH
-ARG HF_TOKEN
 
-# Export them as ENV variables in the container
+# Export as environment variables
 ENV ENVIRONMENT=$ENVIRONMENT
 ENV HOST=$HOST
 ENV PORT=$PORT
@@ -24,10 +23,6 @@ ENV MODEL_PATH=$MODEL_PATH
 ENV HUGGINGFACE_MODEL=$HUGGINGFACE_MODEL
 ENV BASELINE_MODEL_PATH=$BASELINE_MODEL_PATH
 ENV VECTORIZER_PATH=$VECTORIZER_PATH
-
-# Set Hugging Face cache directory (Prevent permission errors)
-ENV HF_HOME=/tmp/huggingface_cache
-RUN mkdir -p $HF_HOME && chmod -R 777 $HF_HOME
 
 # Install system dependencies (required for some Python packages)
 RUN apt-get update && apt-get install -y gcc && rm -rf /var/lib/apt/lists/*
@@ -38,6 +33,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application files (avoid unnecessary files)
 COPY . .
+
+# Copy models
+COPY src/models /app/src/models
 
 # Expose FastAPI port
 EXPOSE 7860
