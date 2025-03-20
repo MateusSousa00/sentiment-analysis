@@ -111,15 +111,21 @@ jobs:
     runs-on: ubuntu-latest
     needs: build_docker
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
       - name: Install Railway CLI
-        run: curl -fsSL https://railway.app/install.sh | sh
-
-      - name: Authenticate with Railway
-        run: railway login --token ${{ secrets.RAILWAY_SERVICE_TOKEN }}
-
-      - name: Deploy to Railway
-        run: railway up --service sentiment-analysis-api --project ${{ secrets.RAILWAY_PROJECT_ID }}
+        run: npm install -g @railway/cli
+          
+      - name: Authenticate Railway CLI (Non-Interactive)
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: echo "$RAILWAY_TOKEN" | railway login --browserless
+        
+      - name: Link Railway Project (Final Step)
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: railway link --service sentiment-analysis-api --project sentiment-analysis-api
+        
+      - name: Deploy to Railway (Final Step)
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: railway up --service sentiment-analysis-api --ci
 
