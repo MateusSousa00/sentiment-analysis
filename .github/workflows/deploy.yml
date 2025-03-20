@@ -30,8 +30,29 @@ jobs:
           echo "PORT=${{ secrets.PORT }}" >> $GITHUB_ENV
           echo "LOG_LEVEL=${{ secrets.LOG_LEVEL }}" >> $GITHUB_ENV
           echo "MODEL_PATH=${{ secrets.MODEL_PATH }}" >> $GITHUB_ENV
+          echo "HUGGINGFACE_MODEL=${{ secrets.HUGGINGFACE_MODEL }}" >> $GITHUB_ENV
           echo "BASELINE_MODEL_PATH=${{ secrets.BASELINE_MODEL_PATH }}" >> $GITHUB_ENV
           echo "VECTORIZER_PATH=${{ secrets.VECTORIZER_PATH }}" >> $GITHUB_ENV
+          echo "HF_TOKEN=${{ secrets.HF_TOKEN }}" >> $GITHUB_ENV
+
+      - name: Authenticate with Hugging Face
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          huggingface-cli login --token "$HF_TOKEN"
+
+      - name: Download Transformer Model from Hugging Face
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          MODEL_PATH: "src/models/transformer_finetuned"
+          HUGGINGFACE_MODEL: "${{ secrets.HUGGINGFACE_MODEL }}"
+        run: |
+          rm -rf src/models/transformer_finetuned
+          echo "Model not found locally. Downloading from Hugging Face..."
+          mkdir -p $MODEL_PATH
+          huggingface-cli login --token $HF_TOKEN
+          huggingface-cli download $HUGGINGFACE_MODEL --local-dir $MODEL_PATH
+          ls -lh $MODEL_PATH
 
       - name: Run Full Pipeline (Dataset, Preprocessing, Training)
         run: |
